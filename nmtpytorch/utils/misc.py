@@ -84,13 +84,13 @@ def get_language(fname):
     return suffix
 
 
-def listify(l):
+def listify(ll):
     """Encapsulate l with list[] if not."""
-    return [l] if not isinstance(l, list) else l
+    return [ll] if not isinstance(ll, list) else ll
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+def flatten(ll):
+    return [item for sublist in ll for item in sublist]
 
 
 def get_local_args(d):

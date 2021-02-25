@@ -1,12 +1,4 @@
-from collections import defaultdict
-
-import numpy as np
-import torch
-
-
 from ignite import metrics as ig_metrics
-
-from .device import DEVICE
 
 from ..metrics import Metric
 

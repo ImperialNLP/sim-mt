@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections import UserString, OrderedDict
 
 from .. import datasets
@@ -17,6 +16,7 @@ class DataSource(UserString):
         klass = getattr(datasets, '{}Dataset'.format(_type))
         self.kwargs = {}
         self.torchify = lambda batch: klass.to_torch(batch, **self.kwargs)
+
     def __repr__(self):
         return "DataSource('{}', kwargs:{})".format(self.data, self.kwargs)
 
