@@ -4,9 +4,10 @@ This repository is a stripped down clone of the upstream `nmtpytorch` repository
 
 ## Contributors
 
-- Veneta Haralampieva added parts related to Transformers
 - Julia Ive added all parts relating to reinforcement learning (RL) based
 simultaneous MT and MMT.
+- As part of her MSc. thesis, Veneta Haralampieva contributed layers & models for Transformers support
+to simultaneous MT and MMT.
 
 ## Installation
 
