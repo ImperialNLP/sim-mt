@@ -36,7 +36,7 @@ setuptools.setup(
         'numpy', 'scikit-learn', 'tqdm', 'pillow',
         'torch', 'torchvision', 'pytorch-ignite',
         'sacrebleu>=1.2.9',
-        'editdistance==0.4',
+        'editdistance==0.4', 'nltk',
     ],
     include_package_data=True,
     exclude_package_data={'': ['.git']},
