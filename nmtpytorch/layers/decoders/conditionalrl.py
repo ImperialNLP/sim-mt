@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
-import random
-import scipy.stats
 
 import torch
 from torch import nn
@@ -10,7 +7,7 @@ import torch.nn.functional as F
 from ...utils.nn import get_rnn_hidden_state, get_activation_fn
 from .. import FF
 from ..attention import get_attention
-from ...utils.device import DEVICE
+
 
 class ConditionalDecoderRL(nn.Module):
     """A conditional decoder with attention à la dl4mt-tutorial."""
@@ -23,10 +20,13 @@ class ConditionalDecoderRL(nn.Module):
                  emb_maxnorm=None, emb_gradscale=False, sched_sample=0,
                  out_logic='simple', dec_inp_activ=None, critic=False):
         super().__init__()
+
         self.critic = critic
+
         # Normalize case
         self.rnn_type = rnn_type.upper()
         self.out_logic = out_logic
+
         # A persistent dictionary to save activations for further debugging
         # Currently only used in MMT decoder
         self.persistence = defaultdict(list)
@@ -123,8 +123,7 @@ class ConditionalDecoderRL(nn.Module):
         # simple: tanh(W*h)
         #   deep: tanh(W*h + U*emb + V*ctx)
         out_inp_size = self.hidden_size
-        #print(out_inp_size)
-        #exit()
+
         # Dummy op to return back the hidden state for simple output
         self.out_merge_fn = lambda h, c: h
 
@@ -135,7 +134,7 @@ class ConditionalDecoderRL(nn.Module):
         #    #self.out_merge_fn = lambda h, c: torch.cat((h, c), dim=1)
         #    #print(out_inp_size)
         #    #exit()
-        
+
         #if self.critic:
         #    out_inp_size = self.input_size
 
@@ -149,7 +148,6 @@ class ConditionalDecoderRL(nn.Module):
         # Tie input embedding matrix and output embedding matrix
         if self.tied_emb:
             self.out2prob.weight = self.emb.weight
-        
 
         self.lin_class = nn.Linear(1, 1, bias=False)
         self.nll_loss = nn.NLLLoss(reduction="sum", ignore_index=0)
@@ -212,47 +210,21 @@ class ConditionalDecoderRL(nn.Module):
 
     def f_next(self, ctx_dict, y, h, emb):
         """Applies one timestep of recurrence."""
-        # Get hidden states from the first decoder (purely cond. on LM)
-        #h1_c1 = self.dec0(y, self._rnn_unpack_states(h))
-        #h1 = get_rnn_hidden_state(h1_c1)
-        #final_hid_in = h1
         img_z_t = None
         if self.att_type and not self.critic:
             # Apply attention
-            #print(ctx_dict[self.ctx_name][0].size())
-            #print(emb.size())
-            #exit()
-            img_alpha_t, img_z_t = self.att(emb.unsqueeze(0), *ctx_dict[self.ctx_name])
-            #print(img_alpha_t.permute(1,0)[0])
-            #exit()
+            img_alpha_t, img_z_t = self.att(
+                emb.unsqueeze(0), *ctx_dict[self.ctx_name])
+
             if not self.training:
                 self.history['alpha_img'].append(img_alpha_t)
 
-            # Run second decoder (h1 is compatible now as it was returned by GRU)
-            # Additional optional transformation is to make the comparison
-            # fair with the MMT model.
-        
-            #h2_c2 = self.dec1(self.dec_inp_activ_fn(img_z_t), h1_c1)
-            #h2 = get_rnn_hidden_state(h2_c2)
-            #print(h1.size())
-            #print(y.size())
-            #print(img_z_t.size())
-            #exit()
-            #final_hid_in = self.out_merge_fn(h1,emb,img_z_t)
-            #final_hid_in = img_z_t
             y = torch.cat((y, img_z_t), 1)
-        #else:
-        #    y = torch.cat((y, emb), 1)
-        
-        #if self.critic:
-        #    h_return = None
-        #    final_hid_in = y
-        #else:
-        if True:
-            h1_c1 = self.dec0(y, self._rnn_unpack_states(h))
-            h1 = get_rnn_hidden_state(h1_c1)
-            h_return = self._rnn_pack_states(h1_c1)
-            final_hid_in = h1
+
+        h1_c1 = self.dec0(y, self._rnn_unpack_states(h))
+        h1 = get_rnn_hidden_state(h1_c1)
+        h_return = self._rnn_pack_states(h1_c1)
+        final_hid_in = h1
 
         # Output logic
         logit = self.hid2out(final_hid_in)
@@ -282,51 +254,35 @@ class ConditionalDecoderRL(nn.Module):
 
         loss = 0.0
 
-        # Get initial hidden state
-        #h = self.f_init(ctx_dict)
-
-        # are we doing scheduled sampling?
-        ## sched = self.training and (random.random() > (1 - self.sched_sample))
-
-        # Convert token indices to embeddings -> T*B*E
-        # Skip <bos> now
-        #bos = self.get_emb(y[0], 0)
-        #log_p, h = self.f_next(ctx_dict, bos, h)
-        #loss += self.nll_loss(log_p, y[1])
-        #y_emb = self.get_emb(y)
-        #y = torch.cat((policy_input, y_emb), 1)
-        #for t in range(y_emb.shape[0] - 1):
-        #emb = self.emb(log_p.argmax(1)) if sched else y_emb[t]
-
         if self.n_vocab == 1:
-            
-            logit, h, img_ctx  = self.f_next(ctx_dict, policy_input, h, emb)
+            logit, h, img_ctx = self.f_next(ctx_dict, policy_input, h, emb)
             log_p = self.lin_class(logit).squeeze(-1)
             action = torch.round(log_p).squeeze(-1)
             action_all = action
-            #print(torch.cat((log_p, 1-log_p), dim=-1))
-            #exit()
-            act_dist = torch.distributions.Categorical(probs=torch.cat((log_p, 1-log_p), dim=-1))
+            act_dist = torch.distributions.Categorical(
+                probs=torch.cat((log_p, 1 - log_p), dim=-1))
             ent = act_dist.entropy()
         else:
-            
             logit, h, img_ctx = self.f_next(ctx_dict, policy_input, h, emb)
             p_dist = F.softmax(logit, dim=-1)
-            #p_dist = F.gumbel_softmax(logit, tau=1, hard=True)
-            #act_dist = torch.distributions.Categorical(probs=p_dist)
             if sample:
                 p_dist_gumbel = F.gumbel_softmax(logit, tau=1, hard=True)
-                #action = act_dist.sample()
                 action_all = p_dist_gumbel
-                action = p_dist_gumbel[:,1]
+                action = p_dist_gumbel[:, 1]
                 log_p = (p_dist * p_dist_gumbel).sum(-1)
                 ent = -(p_dist * torch.log(p_dist)).sum(-1)
             else:
-                #p_dist = F.softmax(logit, dim=-1)
                 act_dist = torch.distributions.Categorical(probs=p_dist)
                 action = p_dist.argmax(dim=-1)
                 action_all = F.one_hot(action, num_classes=2)
                 log_p = act_dist.log_prob(action)
                 ent = act_dist.entropy()
 
-        return {'loss': loss, 'action': action, 'log_p': log_p, 'h': h, 'negentropy': -ent, 'action_all': action_all, 'img_ctx': img_ctx}
+        return {
+            'loss': loss,
+            'action': action,
+            'log_p': log_p,
+            'h': h, 'negentropy': -ent,
+            'action_all': action_all,
+            'img_ctx': img_ctx,
+        }

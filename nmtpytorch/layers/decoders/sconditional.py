@@ -57,7 +57,7 @@ class SimultaneousConditionalDecoder(nn.Module):
         self.fusion = lambda x: x[0]
         if len(encoders) > 1:
             # Multiple inputs (multimodal NMT)
-            ctx_sizes = [l.ctx_size for l in encoders.values()]
+            ctx_sizes = [ll.ctx_size for ll in encoders.values()]
             if mm_fusion_op == 'concat':
                 mm_inp_size = sum(ctx_sizes)
             else:
@@ -147,6 +147,5 @@ class SimultaneousConditionalDecoder(nn.Module):
         # Compute log_softmax over token dim
         log_p = F.log_softmax(logit, dim=-1)
 
-        # Return log probs and new hidden states
+        # Return log probs, new hidden state and the context computed
         return log_p, h2, c_t
-
