@@ -101,6 +101,10 @@ class SimultaneousGreedySearch(GreedySearch):
         idxs = self.buffer[:self.t_ptr].tolist()
         return self.model.vocabs['trg'].idxs_to_sent(idxs)
 
+    def set_first_word_to_bos(self, cur_batch_size):
+        self.prev_word = self.model.get_bos(cur_batch_size).to(DEVICE)
+        self.tf_decoder_input = self.prev_word.unsqueeze(0)
+
     def run_all(self):
         """Do a grid search over the given list of parameters."""
         #############
@@ -194,7 +198,3 @@ class SimultaneousGreedySearch(GreedySearch):
         hyps = sort_predictions(self.data_loader, translations)
         actions = sort_predictions(self.data_loader, actions)
         return (hyps, actions, up_time)
-
-    def set_first_word_to_bos(self, cur_batch_size):
-        self.prev_word = self.model.get_bos(cur_batch_size).to(DEVICE)
-        self.tf_decoder_input = self.prev_word.unsqueeze(0)

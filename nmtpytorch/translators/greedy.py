@@ -128,4 +128,4 @@ class GreedySearch:
         if self.do_dump:
             self.dump_results(hyps)
 
-        return (hyps,)
+        return (hyps, None, 0.0)
