@@ -13,6 +13,7 @@ from .utils.ml_metrics import Loss
 from .utils.data import make_dataloader
 from .utils.tensorboard import TensorBoard
 from .translators import get_translator
+from .metrics.simnmt import AVPScorer, AVLScorer
 
 logger = logging.getLogger('nmtpytorch')
 
@@ -273,12 +274,12 @@ class MainLoop:
             self.print(f'Performing greedy search (args: {tr_args})')
             beam_time = time.time()
             # Use greedy search
-            hyps, *_ = self.translator.run(**tr_args)
+            hyps, *translators_outputs = self.translator.run(**tr_args)
             beam_time = time.time() - beam_time
 
             # Compute metrics and update results
             score_time = time.time()
-            results.extend(self.evaluator.score(hyps))
+            results.extend(self.evaluator.score(hyps, translators_outputs))
             score_time = time.time() - score_time
 
         # Log metrics to tensorboard

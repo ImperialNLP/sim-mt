@@ -11,3 +11,4 @@ from .snmt_tf_enc_cmm_waitk import EncoderCrossMMSimultaneousTFWaitKNMT
 from .snmt_tf_enc_cmm_entities import EncoderCrossMMEntitiesSimultaneousTFNMT
 from .snmt_tf_enc_cmm_entities_waitk import EncoderCrossMMEntitiesSimultaneousTFWaitKNMT
 from .snmt_tf_enc_mm_waitk import EncoderMMSimultaneousTFWaitKNMT
+from .simmmtrl import SIMRL

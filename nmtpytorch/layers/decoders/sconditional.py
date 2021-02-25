@@ -148,4 +148,5 @@ class SimultaneousConditionalDecoder(nn.Module):
         log_p = F.log_softmax(logit, dim=-1)
 
         # Return log probs and new hidden states
-        return log_p, h2
+        return log_p, h2, c_t
+

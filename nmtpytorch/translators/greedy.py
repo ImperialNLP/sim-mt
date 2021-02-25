@@ -48,7 +48,7 @@ class GreedySearch:
                 f.write(f'{line}\n')
 
     def decoder_step(self, state_dict, next_word_idxs, h, hypothesis=None):
-        logp, h = self.model.dec.f_next(
+        logp, h, _ = self.model.dec.f_next(
             state_dict, self.model.dec.get_emb(next_word_idxs), h, hypothesis)
 
         # Similar to the logic in fairseq https://bit.ly/3agXAa7
