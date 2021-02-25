@@ -1,7 +1,6 @@
 import numpy as np
 
 from .metric import Metric
-from .multibleu import BLEUScorer
 
 
 class AVPScorer:
@@ -104,14 +103,13 @@ class AVLScorer(AVPScorer):
             lags.append((cum_reads[:cutoff] - t2).mean())
         return np.array(lags)
 
+
 class Q2AVLScorer:
     def __init__(self, add_trg_eos=True):
         self.name = 'Q2AVL'
         self.avl_scorer = AVLScorer(add_trg_eos=add_trg_eos)
-        self.bleu_scorer = AVLScorer(add_trg_eos=add_trg_eos)
 
     def compute(self, actions, quality_score):
-
         avl_score = self.avl_scorer.compute(actions)
         return Metric(self.name, quality_score / avl_score.score, higher_better=True)
 

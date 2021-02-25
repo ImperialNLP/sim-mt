@@ -47,7 +47,7 @@ class METEORScorer:
         eval_line = 'EVAL'
 
         for line_ctr, lines in enumerate(zip(*iters)):
-            lines = [l.rstrip('\n') for l in lines]
+            lines = [ll.rstrip('\n') for ll in lines]
             refstr = " ||| ".join(lines[:-1])
             line = "SCORE ||| " + refstr + " ||| " + lines[-1]
 
