@@ -55,7 +55,7 @@ class GreedySearch:
         # Never select the pad token or the bos token
         logp[:, self.pad] = -math.inf
         logp[:, self.bos] = -math.inf
-        
+
         # Compute most likely word idxs
         next_word_idxs = logp.argmax(dim=-1)
         return logp, h, next_word_idxs
