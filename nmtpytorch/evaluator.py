@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections import OrderedDict
 
 from . import metrics
@@ -26,13 +25,13 @@ class Evaluator:
         assert len(self.refs) > 0, "Number of reference files == 0"
 
         for metric in sorted(beam_metrics):
-            if metric is "Q2AVL" or metric is "Q2AVP":
+            if metric == "Q2AVL" or metric == "Q2AVP":
                 self.simmt_scorers[metric] = getattr(metrics, metric + 'Scorer')()
             else:
                 self.kwargs[metric] = {'language': self.language}
                 self.scorers[metric] = getattr(metrics, metric + 'Scorer')()
 
-    def score(self, hyps, translator_outputs=None):
+    def score(self, hyps, actions=None):
         """hyps is a list of hypotheses as they come out from decoder."""
         assert isinstance(hyps, list), "hyps should be a list."
 
@@ -44,9 +43,9 @@ class Evaluator:
             results.append(
                 scorer.compute(self.refs, hyps, **self.kwargs[key]))
 
-        if len(translator_outputs) > 0:
+        if actions is not None:
+            # compute Q2* metrics for SiMT
+            # NOTE: Quality -> first given metric in config file
             for key, scorer in self.simmt_scorers.items():
-                # for the moment we take the first quality metric
-                results.append(
-                    scorer.compute(translator_outputs[0], results[0].score))
+                results.append(scorer.compute(actions, results[0].score))
         return results

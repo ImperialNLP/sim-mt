@@ -65,7 +65,7 @@ class SimultaneousTFNMT(SimultaneousNMT):
             'dec_n_layers': 6,          # The number of decoder layers
             'enc_ff_dim': 2048,         # The number of encoder feed forward dimensions
             'dec_ff_dim': 2048,         # The number of decoder feed forward dimensions
-            'enc_bidirectional': False, # Whether the encoder is bidirectional or unidirectional.
+            'enc_bidirectional': False,  # Whether the encoder is bidirectional or unidirectional.
             'tied_emb': False,          # Whether the embedding should be tied.
             'ff_activ': 'gelu',         # The feed forward layer activation function. Default 'gelu'.
             'dropout': 0.1,             # The dropout.

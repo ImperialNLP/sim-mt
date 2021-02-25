@@ -53,4 +53,3 @@ class EncoderMMSimultaneousTFWaitKNMT(SimultaneousTFWaitKNMT):
         :return: The encoder states up to a certain timestep.
         """
         return {'src': self.encoders['src'].get_states(up_to=up_to)}
-

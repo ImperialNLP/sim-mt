@@ -286,7 +286,7 @@ class SimultaneousNMT(nn.Module):
 
         # -1: So that we skip the timestep where input is <eos>
         for t in range(y_emb.size(0) - 1):
-            log_p, h, _  = self.dec.f_next(state_dict, y_emb[t], h)
+            log_p, h, _ = self.dec.f_next(state_dict, y_emb[t], h)
             loss += self.dec.nll_loss(log_p, y[t + 1])
 
         return {
