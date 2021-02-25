@@ -137,10 +137,10 @@ class SimultaneousRLGreedySearch(GreedySearch):
             self.dump_lines(actions, suffix=f's{s_0}_d{delta}_{crit}.acts')
 
     def run(self, **kwargs):
-
         all_actions = []
         all_translations = []
         c = 0
+
         for batch in pbar(self.data_loader, unit='batch'):
             c += 1
             batch_length = batch.size
@@ -283,8 +283,12 @@ class SimultaneousRLGreedySearch(GreedySearch):
 
             for translation in translations:
                 translation_txt = vocab.idxs_to_sent(translation)
+                # NOTE: remove wait actions
+                # This should be another token than <unk> ideally
                 translation_txt = re.sub("<unk>", "", translation_txt)
                 translation_txt = re.sub("\\s+", " ", translation_txt)
                 all_translations.append(vocab.idxs_to_sent(translation))
 
-        return (sort_predictions(self.data_loader, all_translations), sort_predictions(self.data_loader, all_actions), 0)
+        hyps = sort_predictions(self.data_loader, all_translations)
+        actions = sort_predictions(self.data_loader, all_actions)
+        return (hyps, actions, 0.0)
