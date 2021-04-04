@@ -22,4 +22,6 @@ dependencies:
     - subword_nmt==0.3.5
     - ipdb
     - nltk
+    - gym==0.10.9
+    - nn_builder
     - -e .

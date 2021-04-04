@@ -12,3 +12,5 @@ from .snmt_tf_enc_cmm_entities import EncoderCrossMMEntitiesSimultaneousTFNMT
 from .snmt_tf_enc_cmm_entities_waitk import EncoderCrossMMEntitiesSimultaneousTFWaitKNMT
 from .snmt_tf_enc_mm_waitk import EncoderMMSimultaneousTFWaitKNMT
 from .simmmtrl import SIMRL
+from .nmt import NMT
+from .nmt_unsup_rl import DIAYN_Agent

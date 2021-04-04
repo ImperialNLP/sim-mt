@@ -222,10 +222,11 @@ class ConditionalDecoder(nn.Module):
 
         # Transform logit to T*B*V (V: vocab_size)
         # Compute log_softmax over token dim
-        log_p = F.log_softmax(self.out2prob(logit), dim=-1)
+        to_prob = self.out2prob(logit)
+        log_p = F.log_softmax(to_prob, dim=-1)
 
         # Return log probs and new hidden states
-        return log_p, self._rnn_pack_states(h2_c2)
+        return log_p, self._rnn_pack_states(h2_c2), to_prob
 
     def forward(self, ctx_dict, y):
         """Computes the softmax outputs given source annotations `ctx_dict[self.ctx_name]`
@@ -250,13 +251,13 @@ class ConditionalDecoder(nn.Module):
         # Convert token indices to embeddings -> T*B*E
         # Skip <bos> now
         bos = self.get_emb(y[0], 0)
-        log_p, h = self.f_next(ctx_dict, bos, h)
+        log_p, h, _ = self.f_next(ctx_dict, bos, h)
         loss += self.nll_loss(log_p, y[1])
         y_emb = self.get_emb(y[1:])
 
         for t in range(y_emb.shape[0] - 1):
             emb = self.emb(log_p.argmax(1)) if sched else y_emb[t]
-            log_p, h = self.f_next(ctx_dict, emb, h)
+            log_p, h, _ = self.f_next(ctx_dict, emb, h)
             loss += self.nll_loss(log_p, y[t + 2])
 
         return {'loss': loss}
