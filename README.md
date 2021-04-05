@@ -4,7 +4,7 @@ This repository is a stripped down clone of the upstream `nmtpytorch` repository
 
 ## Contributors
 
-- Julia Ive added all parts relating to reinforcement learning (RL) based
+- [Julia Ive][1] added all parts relating to reinforcement learning (RL) based
 simultaneous MT and MMT.
 - As part of her MSc. thesis, Veneta Haralampieva contributed layers & models for Transformers support
 to simultaneous MT and MMT.
@@ -16,3 +16,5 @@ The installation should be straightforward using anaconda. The below command wil
 ```
 conda env create -f environment.yml
 ```
+
+[1]: https://julia-ive.github.io
